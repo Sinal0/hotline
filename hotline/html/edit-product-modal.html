@@ -1,0 +1,62 @@
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg d-flex align-content-center flex-wrap">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProductModalLabel">ویرایش محصول</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm">
+                    <input type="hidden" id="editProductId">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">نام محصول <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editProductName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">تأمین‌کننده <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editProductSupplier" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">قیمت (تومان) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="editProductPrice" min="0" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">دسته‌بندی <span class="text-danger">*</span></label>
+                            <select class="form-select" id="editProductCategory" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="electronics">الکترونیک</option>
+                                <option value="clothing">پوشاک</option>
+                                <option value="food">مواد غذایی</option>
+                                <option value="home">خانه و آشپزخانه</option>
+                                <option value="beauty">زیبایی و سلامت</option>
+                                <option value="sports">ورزش و سرگرمی</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">موجودی</label>
+                            <input type="number" class="form-control" id="editProductStock" min="0" value="0">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">آدرس تصویر محصول (URL)</label>
+                            <input type="text" class="form-control" id="editProductImage" placeholder="مثال: ../pictures/products/electronics.png">
+                            <small class="form-text text-muted">اگر خالی باشد، از تصویر پیش‌فرض دسته‌بندی استفاده می‌شود</small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">توضیحات</label>
+                            <textarea class="form-control" id="editProductDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" onclick="saveProductChanges()">
+                    <i class="fas fa-save me-2"></i>ذخیره تغییرات
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

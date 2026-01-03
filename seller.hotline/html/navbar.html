@@ -1,0 +1,59 @@
+<!-- Navigation -->
+<!-- First Row: Logo, Cart, Login, Search Bar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container-fluid">
+        <div class="w-100 d-flex align-items-center justify-content-center py-2 navbar-header gap-4">
+            <a class="navbar-brand d-flex align-items-center gap-3 p-0" href="/index.html"style="text-decoration: none; margin-right:0px; margin-left:;">
+                <img src="/pictures/logo.png" alt="Hotline Logo" class="logo-img">
+                <span class="fw-bold text-primary fs-4">Hotline</span>
+            </a>
+            <form class="flex-grow-1 d-flex position-relative" style="max-width: 500px;" id="searchForm">
+                <input class="form-control" type="search" placeholder="جستجوی محصولات" aria-label="Search" id="navbarSearchInput">
+                <button class="btn btn-primary" type="submit" aria-label="جستجو">
+                    <i class="fas fa-search"></i>
+                </button>
+                <div id="searchResultsDropdown" class="position-absolute w-100 bg-white border rounded shadow-lg" style="top: 100%; right: 0; z-index: 1000; display: none; max-height: 400px; overflow-y: auto; margin-top: 5px;"></div>
+            </form>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-secondary theme-toggle-btn" id="themeToggle" aria-label="تغییر تم">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <a href="/cart.html" class="position-relative text-dark text-decoration-none">
+                    <i class="fas fa-shopping-cart fs-4"></i>
+                    <span
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark cart-count">0</span>
+                </a>
+                <a href="/login.html" class="btn btn-primary" id="loginRegisterBtn">ورود / ثبت‌نام</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Second Row: Menu -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-top sticky-top" id="navbar-second-row">
+    <div class="container-fluid">
+        <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-start gap-3" style="padding-right: 15%; margin-right: 11%;">
+            <ul class="navbar-nav d-flex flex-row gap-3 mb-0">
+                <li class="nav-item dropdown categories-dropdown">
+                    <a class="nav-link dropdown-toggle" href="/products.html" data-nav="products" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        دسته‌بندی‌ها
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                        <li><a class="dropdown-item" href="/products.html?category=electronics"><i class="fas fa-laptop me-2"></i>الکترونیک</a></li>
+                        <li><a class="dropdown-item" href="/products.html?category=clothing"><i class="fas fa-tshirt me-2"></i>پوشاک</a></li>
+                        <li><a class="dropdown-item" href="/products.html?category=food"><i class="fas fa-utensils me-2"></i>مواد غذایی</a></li>
+                        <li><a class="dropdown-item" href="/products.html?category=home"><i class="fas fa-home me-2"></i>خانه و آشپزخانه</a></li>
+                        <li><a class="dropdown-item" href="/products.html?category=beauty"><i class="fas fa-spa me-2"></i>زیبایی و سلامت</a></li>
+                        <li><a class="dropdown-item" href="/products.html?category=sports"><i class="fas fa-dumbbell me-2"></i>ورزش و سرگرمی</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/suppliers.html" data-nav="suppliers">تأمین‌کنندگان</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about.html" data-nav="about">درباره ما</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

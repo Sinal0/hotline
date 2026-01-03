@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأمین‌کنندگان - Hotline</title>
+    <!-- Bootstrap RTL CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <!-- Navigation Container -->
+    <div id="navbar-container"></div>
+
+    <!-- Suppliers Section -->
+    <section class="py-5">
+        <div class="container">
+            <h1 class="text-center mb-3 display-4 fw-bold">تأمین‌کنندگان معتبر</h1>
+            <p class="text-center text-muted mb-5">
+                با بهترین تولیدکنندگان و واردکنندگان کشور همکاری کنید
+            </p>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 text-center shadow-sm">
+                        <div class="card-body">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-industry fs-2"></i>
+                            </div>
+                            <h5 class="card-title">شرکت تولیدی پوشاک تهران</h5>
+                            <p class="card-text text-muted">تولیدکننده انواع پوشاک مردانه و زنانه</p>
+                            <p class="text-primary fw-bold">
+                                <i class="fas fa-star text-warning"></i> امتیاز: 4.8
+                            </p>
+                            <a href="products.html?supplier=1" class="btn btn-outline-primary mt-2">مشاهده محصولات</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 text-center shadow-sm">
+                        <div class="card-body">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-globe fs-2"></i>
+                            </div>
+                            <h5 class="card-title">شرکت واردات الکترونیک</h5>
+                            <p class="card-text text-muted">واردکننده انواع لوازم الکترونیکی</p>
+                            <p class="text-primary fw-bold">
+                                <i class="fas fa-star text-warning"></i> امتیاز: 4.9
+                            </p>
+                            <a href="products.html?supplier=2" class="btn btn-outline-primary mt-2">مشاهده محصولات</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 text-center shadow-sm">
+                        <div class="card-body">
+                            <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-utensils fs-2"></i>
+                            </div>
+                            <h5 class="card-title">واردکننده مواد غذایی</h5>
+                            <p class="card-text text-muted">واردات و توزیع مواد غذایی با کیفیت</p>
+                            <p class="text-primary fw-bold">
+                                <i class="fas fa-star text-warning"></i> امتیاز: 4.7
+                            </p>
+                            <a href="products.html?supplier=3" class="btn btn-outline-primary mt-2">مشاهده محصولات</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 text-center shadow-sm">
+                        <div class="card-body">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-home fs-2"></i>
+                            </div>
+                            <h5 class="card-title">تولیدکننده لوازم خانگی</h5>
+                            <p class="card-text text-muted">تولید و واردات لوازم خانگی مدرن</p>
+                            <p class="text-primary fw-bold">
+                                <i class="fas fa-star text-warning"></i> امتیاز: 4.6
+                            </p>
+                            <a href="products.html?supplier=4" class="btn btn-outline-primary mt-2">مشاهده محصولات</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-5">
+                    <h2 class="mb-3">می‌خواهید تأمین‌کننده شوید؟</h2>
+                    <p class="text-muted mb-4">به شبکه تأمین‌کنندگان ما بپیوندید و محصولات خود را به هزاران خریدار معرفی کنید</p>
+                    <button class="btn btn-primary btn-lg" onclick="openLoginModal()">ثبت‌نام به عنوان تأمین‌کننده</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">ورود / ثبت‌نام</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3" id="loginTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">ورود</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">ثبت‌نام</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="loginTabContent">
+                        <div class="tab-pane fade show active" id="login" role="tabpanel">
+                            <form onsubmit="handleLogin(event)">
+                                <div class="mb-3">
+                                    <label class="form-label">نوع کاربری</label>
+                                    <select class="form-select" id="userType" required>
+                                        <option value="buyer">خریدار (مغازه‌دار / خرده‌فروش)</option>
+                                        <option value="supplier">تأمین‌کننده (تولیدکننده / واردکننده)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ایمیل</label>
+                                    <input type="email" class="form-control" id="loginEmail" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">رمز عبور</label>
+                                    <input type="password" class="form-control" id="loginPassword" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">ورود</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="register" role="tabpanel">
+                            <form onsubmit="handleRegister(event)">
+                                <div class="mb-3">
+                                    <label class="form-label">نوع کاربری</label>
+                                    <select class="form-select" id="registerUserType" required>
+                                        <option value="buyer">خریدار (مغازه‌دار / خرده‌فروش)</option>
+                                        <option value="supplier">تأمین‌کننده (تولیدکننده / واردکننده)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">نام شرکت / فروشگاه</label>
+                                    <input type="text" class="form-control" id="registerName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ایمیل</label>
+                                    <input type="email" class="form-control" id="registerEmail" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">شماره تماس</label>
+                                    <input type="tel" class="form-control" id="registerPhone" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">رمز عبور</label>
+                                    <input type="password" class="form-control" id="registerPassword" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">ثبت‌نام</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5 mt-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <h5>Hotline</h5>
+                    <p class="text-muted">پلتفرم پیشرو در خرید و فروش عمده</p>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <h5>لینک‌های مفید</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="about.html" class="text-muted text-decoration-none">درباره ما</a></li>
+                        <li><a href="contact.html" class="text-muted text-decoration-none">تماس با ما</a></li>
+                        <li><a href="terms.html" class="text-muted text-decoration-none">قوانین و مقررات</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <h5>پشتیبانی</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="faq.html" class="text-muted text-decoration-none">سوالات متداول</a></li>
+                        <li><a href="support.html" class="text-muted text-decoration-none">پشتیبانی</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <h5>تماس با ما</h5>
+                    <p class="text-muted"><i class="fas fa-phone me-2"></i> 021-12345678</p>
+                    <p class="text-muted"><i class="fas fa-envelope me-2"></i> info@b2bmarketplace.com</p>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <div class="text-center text-muted">
+                <p class="mb-0">&copy; 2024 Hotline. تمامی حقوق محفوظ است.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Load Navbar -->
+    <script src="../js/loadNavbar.js"></script>
+    <!-- Custom JS -->
+    <script src="../js/script.js"></script>
+    <script>
+        function openLoginModal() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+        }
+        
+        function closeLoginModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            if (modal) modal.hide();
+        }
+        
+        function switchTab(tab) {
+            if (tab === 'login') {
+                const loginTab = new bootstrap.Tab(document.getElementById('login-tab'));
+                loginTab.show();
+            } else {
+                const registerTab = new bootstrap.Tab(document.getElementById('register-tab'));
+                registerTab.show();
+            }
+        }
+    </script>
+</body>
+</html>

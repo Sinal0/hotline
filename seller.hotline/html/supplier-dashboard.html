@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد تامین‌کننده - Seller Hotline</title>
+    <!-- Bootstrap RTL CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+    <!-- Theme Initialization - Must load before body renders -->
+    <script src="/js/theme-init.js"></script>
+    <style>
+        .dashboard-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .product-card, .order-card {
+            transition: transform 0.2s;
+        }
+        .product-card:hover, .order-card:hover {
+            transform: translateY(-5px);
+        }
+        .status-badge {
+            font-size: 0.85rem;
+        }
+        .nav-tabs .nav-link.active {
+            background-color: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .nav-tabs .nav-link {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-tachometer-alt me-2"></i>داشبورد تامین‌کننده</h1>
+                    <p class="mb-0" id="supplierName">در حال بارگذاری...</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-light theme-toggle-btn" id="themeToggle" aria-label="تغییر تم">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+                    <button class="btn btn-light" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i>خروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="add-product-tab" data-bs-toggle="tab" data-bs-target="#add-product" type="button" role="tab">
+                    <i class="fas fa-plus-circle me-2"></i>افزودن محصول
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="manage-products-tab" data-bs-toggle="tab" data-bs-target="#manage-products" type="button" role="tab">
+                    <i class="fas fa-boxes me-2"></i>مدیریت محصولات
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sales-tab" data-bs-toggle="tab" data-bs-target="#sales" type="button" role="tab">
+                    <i class="fas fa-chart-line me-2"></i>فروش و سفارشات
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="dashboardTabContent">
+            <!-- Add Product Tab -->
+            <div class="tab-pane fade show active" id="add-product" role="tabpanel">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>افزودن محصول جدید</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="addProductForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="productName" class="form-label">نام محصول <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="productName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="productPrice" class="form-label">قیمت (تومان) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="productPrice" min="0" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="productCategory" class="form-label">دسته‌بندی <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="productCategory" required>
+                                        <option value="">انتخاب کنید</option>
+                                        <option value="electronics">الکترونیک</option>
+                                        <option value="clothing">پوشاک</option>
+                                        <option value="food">مواد غذایی</option>
+                                        <option value="home">خانه و آشپزخانه</option>
+                                        <option value="beauty">زیبایی و سلامت</option>
+                                        <option value="sports">ورزش و سرگرمی</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="productStock" class="form-label">موجودی <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="productStock" min="0" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="productDescription" class="form-label">توضیحات</label>
+                                <textarea class="form-control" id="productDescription" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="productImage" class="form-label">آدرس تصویر</label>
+                                    <input type="text" class="form-control" id="productImage" placeholder="/pictures/product.jpg">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="productMinOrder" class="form-label">حداقل سفارش</label>
+                                    <input type="number" class="form-control" id="productMinOrder" min="1" value="1">
+                                </div>
+                            </div>
+                            
+                            <div id="formMessage" class="alert d-none" role="alert"></div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>افزودن محصول
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Products Tab -->
+            <div class="tab-pane fade" id="manage-products" role="tabpanel">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>محصولات من</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="productsList" class="row">
+                            <div class="col-12 text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">در حال بارگذاری...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Tab -->
+            <div class="tab-pane fade" id="sales" role="tabpanel">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>فروش و سفارشات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="ordersList">
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">در حال بارگذاری...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">ویرایش محصول</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editProductId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editProductName" class="form-label">نام محصول <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editProductName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editProductPrice" class="form-label">قیمت (تومان) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="editProductPrice" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editProductCategory" class="form-label">دسته‌بندی <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editProductCategory" required>
+                                    <option value="electronics">الکترونیک</option>
+                                    <option value="clothing">پوشاک</option>
+                                    <option value="food">مواد غذایی</option>
+                                    <option value="home">خانه و آشپزخانه</option>
+                                    <option value="beauty">زیبایی و سلامت</option>
+                                    <option value="sports">ورزش و سرگرمی</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editProductStock" class="form-label">موجودی <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="editProductStock" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editProductDescription" class="form-label">توضیحات</label>
+                            <textarea class="form-control" id="editProductDescription" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editProductImage" class="form-label">آدرس تصویر</label>
+                                <input type="text" class="form-control" id="editProductImage">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editProductMinOrder" class="form-label">حداقل سفارش</label>
+                                <input type="number" class="form-control" id="editProductMinOrder" min="1">
+                            </div>
+                        </div>
+                        
+                        <div id="editFormMessage" class="alert d-none" role="alert"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProductEdit()">ذخیره تغییرات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/theme-toggle.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api';
+
+        // Check authentication
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+        
+        if (!token || !userStr) {
+            window.location.href = '/html/login.html';
+        }
+        
+        const user = JSON.parse(userStr);
+        if (user.role !== 'supplier') {
+            alert('شما دسترسی به این صفحه ندارید');
+            window.location.href = '/html/login.html';
+        }
+
+        // Display supplier name
+        document.getElementById('supplierName').textContent = `خوش آمدید ${user.name}`;
+
+        // Load products
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/supplier/my-products`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                
+                if (!response.ok) {
+                    throw new Error('خطا در بارگذاری محصولات');
+                }
+                
+                const products = await response.json();
+                displayProducts(products);
+            } catch (error) {
+                document.getElementById('productsList').innerHTML = 
+                    `<div class="alert alert-danger">${error.message}</div>`;
+            }
+        }
+
+        function displayProducts(products) {
+            const productsList = document.getElementById('productsList');
+            
+            if (products.length === 0) {
+                productsList.innerHTML = '<div class="col-12 text-center text-muted">هنوز محصولی اضافه نکرده‌اید</div>';
+                return;
+            }
+            
+            productsList.innerHTML = products.map(product => `
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card product-card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">${product.name}</h6>
+                            <p class="card-text text-muted small">${product.description || 'بدون توضیحات'}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-${product.approved ? 'success' : 'warning'} status-badge">
+                                    ${product.approved ? 'تایید شده' : 'در انتظار تایید'}
+                                </span>
+                                <span class="text-primary fw-bold">${product.price.toLocaleString()} تومان</span>
+                            </div>
+                            <div class="small text-muted mb-3">
+                                <div>دسته‌بندی: ${getCategoryName(product.category)}</div>
+                                <div>موجودی: ${product.stock}</div>
+                                <div>حداقل سفارش: ${product.minOrder}</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-warning flex-fill" onclick="editProduct('${product._id}')">
+                                    <i class="fas fa-edit me-1"></i>ویرایش
+                                </button>
+                                <button class="btn btn-sm btn-danger flex-fill" onclick="deleteProduct('${product._id}')">
+                                    <i class="fas fa-trash me-1"></i>حذف
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load orders
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/orders/supplier/my-orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                
+                if (!response.ok) {
+                    throw new Error('خطا در بارگذاری سفارشات');
+                }
+                
+                const orders = await response.json();
+                displayOrders(orders);
+            } catch (error) {
+                document.getElementById('ordersList').innerHTML = 
+                    `<div class="alert alert-danger">${error.message}</div>`;
+            }
+        }
+
+        function displayOrders(orders) {
+            const ordersList = document.getElementById('ordersList');
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<div class="text-center text-muted">هنوز سفارشی ثبت نشده است</div>';
+                return;
+            }
+            
+            ordersList.innerHTML = orders.map(order => `
+                <div class="card order-card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="mb-1">سفارش #${order._id.toString().substring(0, 8)}</h6>
+                                <small class="text-muted">تاریخ: ${new Date(order.createdAt).toLocaleDateString('fa-IR')}</small>
+                                <div class="mt-2">
+                                    <strong>مشتری:</strong> ${order.userId ? order.userId.name : 'نامشخص'}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-${getStatusColor(order.status)} status-badge">
+                                    ${getStatusName(order.status)}
+                                </span>
+                                <div class="mt-2">
+                                    <strong class="text-success">${order.totalAmount.toLocaleString()} تومان</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <strong>آدرس ارسال:</strong> ${order.shippingAddress}
+                        </div>
+                        <hr>
+                        <h6>محصولات:</h6>
+                        <ul class="list-unstyled">
+                            ${order.items.map(item => `
+                                <li class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>${item.productId ? item.productId.name : 'محصول حذف شده'} × ${item.quantity}</span>
+                                        <span>${(item.price * item.quantity).toLocaleString()} تومان</span>
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'electronics': 'الکترونیک',
+                'clothing': 'پوشاک',
+                'food': 'مواد غذایی',
+                'home': 'خانه و آشپزخانه',
+                'beauty': 'زیبایی و سلامت',
+                'sports': 'ورزش و سرگرمی',
+            };
+            return categories[category] || category;
+        }
+
+        function getStatusName(status) {
+            const statuses = {
+                'pending': 'در انتظار',
+                'processing': 'در حال پردازش',
+                'shipped': 'ارسال شده',
+                'delivered': 'تحویل داده شده',
+                'cancelled': 'لغو شده',
+            };
+            return statuses[status] || status;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'pending': 'warning',
+                'processing': 'info',
+                'shipped': 'primary',
+                'delivered': 'success',
+                'cancelled': 'danger',
+            };
+            return colors[status] || 'secondary';
+        }
+
+        // Add product form
+        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formMessage = document.getElementById('formMessage');
+            formMessage.classList.add('d-none');
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                category: document.getElementById('productCategory').value,
+                stock: parseInt(document.getElementById('productStock').value),
+                description: document.getElementById('productDescription').value,
+                image: document.getElementById('productImage').value,
+                minOrder: parseInt(document.getElementById('productMinOrder').value) || 1,
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(productData),
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'خطا در افزودن محصول');
+                }
+                
+                formMessage.textContent = 'محصول با موفقیت اضافه شد. منتظر تایید اپراتور باشید.';
+                formMessage.classList.remove('d-none', 'alert-danger');
+                formMessage.classList.add('alert-success');
+                
+                // Reset form
+                document.getElementById('addProductForm').reset();
+                
+                // Reload products
+                loadProducts();
+            } catch (error) {
+                formMessage.textContent = error.message;
+                formMessage.classList.remove('d-none', 'alert-success');
+                formMessage.classList.add('alert-danger');
+            }
+        });
+
+        // Edit product
+        async function editProduct(productId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                
+                if (!response.ok) {
+                    throw new Error('خطا در بارگذاری محصول');
+                }
+                
+                const product = await response.json();
+                
+                document.getElementById('editProductId').value = product._id;
+                document.getElementById('editProductName').value = product.name;
+                document.getElementById('editProductPrice').value = product.price;
+                document.getElementById('editProductCategory').value = product.category;
+                document.getElementById('editProductStock').value = product.stock;
+                document.getElementById('editProductDescription').value = product.description || '';
+                document.getElementById('editProductImage').value = product.image || '';
+                document.getElementById('editProductMinOrder').value = product.minOrder || 1;
+                
+                const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                editModal.show();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Save product edit
+        async function saveProductEdit() {
+            const productId = document.getElementById('editProductId').value;
+            const editFormMessage = document.getElementById('editFormMessage');
+            editFormMessage.classList.add('d-none');
+            
+            const productData = {
+                name: document.getElementById('editProductName').value,
+                price: parseInt(document.getElementById('editProductPrice').value),
+                category: document.getElementById('editProductCategory').value,
+                stock: parseInt(document.getElementById('editProductStock').value),
+                description: document.getElementById('editProductDescription').value,
+                image: document.getElementById('editProductImage').value,
+                minOrder: parseInt(document.getElementById('editProductMinOrder').value) || 1,
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(productData),
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'خطا در ویرایش محصول');
+                }
+                
+                editFormMessage.textContent = 'محصول با موفقیت ویرایش شد. منتظر تایید مجدد اپراتور باشید.';
+                editFormMessage.classList.remove('d-none', 'alert-danger');
+                editFormMessage.classList.add('alert-success');
+                
+                setTimeout(() => {
+                    const editModal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
+                    editModal.hide();
+                    loadProducts();
+                }, 1500);
+            } catch (error) {
+                editFormMessage.textContent = error.message;
+                editFormMessage.classList.remove('d-none', 'alert-success');
+                editFormMessage.classList.add('alert-danger');
+            }
+        }
+
+        // Delete product
+        async function deleteProduct(productId) {
+            if (!confirm('آیا از حذف این محصول اطمینان دارید؟')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'خطا در حذف محصول');
+                }
+                
+                alert('محصول با موفقیت حذف شد');
+                loadProducts();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/html/login.html';
+        }
+
+        // Load data when tab is shown
+        document.getElementById('manage-products-tab').addEventListener('shown.bs.tab', function () {
+            loadProducts();
+        });
+
+        document.getElementById('sales-tab').addEventListener('shown.bs.tab', function () {
+            loadOrders();
+        });
+
+        // Load products on page load if on manage products tab
+        const activeTab = document.querySelector('#dashboardTabs button.active');
+        if (activeTab && activeTab.id === 'manage-products-tab') {
+            loadProducts();
+        }
+    </script>
+</body>
+</html>
