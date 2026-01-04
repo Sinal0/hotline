@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ordersController = require('../controllers/ordersController');
+const { validateCreateOrder, validateUpdateOrderStatus } = require('../validators/orderValidator');
 
 // Get all orders
 router.get('/', ordersController.getAllOrders);
@@ -12,10 +13,10 @@ router.get('/:id', ordersController.getOrderById);
 router.get('/user/:userId', ordersController.getUserOrders);
 
 // Create order
-router.post('/', ordersController.createOrder);
+router.post('/', validateCreateOrder, ordersController.createOrder);
 
 // Update order status
-router.put('/:id/status', ordersController.updateOrderStatus);
+router.put('/:id/status', validateUpdateOrderStatus, ordersController.updateOrderStatus);
 
 module.exports = router;
 

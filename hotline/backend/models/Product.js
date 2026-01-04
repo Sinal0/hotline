@@ -45,7 +45,24 @@ const productSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+// Indexes for better query performance
+productSchema.index({ name: 'text', description: 'text' }); // Text search
+productSchema.index({ category: 1, approved: 1 }); // Category filter
+productSchema.index({ approved: 1, createdAt: -1 }); // Approved products sorted by date
+productSchema.index({ supplier: 1 }); // Supplier filter
+
 module.exports = mongoose.model('Product', productSchema);
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -99,10 +99,10 @@ exports.getSupplierOrders = async (req, res) => {
     try {
         const userId = req.user.userId;
 
-        // Get supplier name from user
-        const User = require('../models/User');
-        const user = await User.findById(userId);
-        if (!user || user.role !== 'supplier') {
+        // Get supplier name from UserSupplier
+        const UserSupplier = require('../models/UserSupplier');
+        const supplier = await UserSupplier.findById(userId);
+        if (!supplier) {
             return res.status(403).json({ error: 'Only suppliers can access this' });
         }
 
@@ -115,12 +115,12 @@ exports.getSupplierOrders = async (req, res) => {
         // Filter orders that contain products from this supplier
         const supplierOrders = allOrders.filter(order => 
             order.items.some(item => 
-                item.productId && item.productId.supplier === user.name
+                item.productId && item.productId.supplier === supplier.name
             )
         ).map(order => {
             // Filter items to only include supplier's products
             const filteredItems = order.items.filter(item => 
-                item.productId && item.productId.supplier === user.name
+                item.productId && item.productId.supplier === supplier.name
             );
             return {
                 ...order.toObject(),

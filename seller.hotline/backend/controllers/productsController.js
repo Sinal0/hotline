@@ -61,10 +61,10 @@ exports.createProduct = async (req, res) => {
         const { name, price, category, stock, description, image, minOrder } = req.body;
         const userId = req.user.userId;
 
-        // Get supplier name from user
-        const User = require('../models/User');
-        const user = await User.findById(userId);
-        if (!user || user.role !== 'supplier') {
+        // Get supplier name from UserSupplier
+        const UserSupplier = require('../models/UserSupplier');
+        const supplier = await UserSupplier.findById(userId);
+        if (!supplier) {
             return res.status(403).json({ error: 'Only suppliers can create products' });
         }
 
@@ -74,7 +74,7 @@ exports.createProduct = async (req, res) => {
 
         const product = new Product({
             name,
-            supplier: user.name,
+            supplier: supplier.name,
             price,
             category,
             stock,
@@ -96,14 +96,14 @@ exports.getSupplierProducts = async (req, res) => {
     try {
         const userId = req.user.userId;
 
-        // Get supplier name from user
-        const User = require('../models/User');
-        const user = await User.findById(userId);
-        if (!user || user.role !== 'supplier') {
+        // Get supplier name from UserSupplier
+        const UserSupplier = require('../models/UserSupplier');
+        const supplier = await UserSupplier.findById(userId);
+        if (!supplier) {
             return res.status(403).json({ error: 'Only suppliers can access this' });
         }
 
-        const products = await Product.find({ supplier: user.name }).sort({ createdAt: -1 });
+        const products = await Product.find({ supplier: supplier.name }).sort({ createdAt: -1 });
         res.json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -116,10 +116,10 @@ exports.updateProduct = async (req, res) => {
         const userId = req.user.userId;
         const { name, price, category, stock, description, image, minOrder } = req.body;
 
-        // Get supplier name from user
-        const User = require('../models/User');
-        const user = await User.findById(userId);
-        if (!user || user.role !== 'supplier') {
+        // Get supplier name from UserSupplier
+        const UserSupplier = require('../models/UserSupplier');
+        const supplier = await UserSupplier.findById(userId);
+        if (!supplier) {
             return res.status(403).json({ error: 'Only suppliers can update products' });
         }
 
@@ -129,7 +129,7 @@ exports.updateProduct = async (req, res) => {
         }
 
         // Check if product belongs to this supplier
-        if (product.supplier !== user.name) {
+        if (product.supplier !== supplier.name) {
             return res.status(403).json({ error: 'You can only update your own products' });
         }
 
@@ -159,10 +159,10 @@ exports.deleteProduct = async (req, res) => {
     try {
         const userId = req.user.userId;
 
-        // Get supplier name from user
-        const User = require('../models/User');
-        const user = await User.findById(userId);
-        if (!user || user.role !== 'supplier') {
+        // Get supplier name from UserSupplier
+        const UserSupplier = require('../models/UserSupplier');
+        const supplier = await UserSupplier.findById(userId);
+        if (!supplier) {
             return res.status(403).json({ error: 'Only suppliers can delete products' });
         }
 
@@ -172,7 +172,7 @@ exports.deleteProduct = async (req, res) => {
         }
 
         // Check if product belongs to this supplier
-        if (product.supplier !== user.name) {
+        if (product.supplier !== supplier.name) {
             return res.status(403).json({ error: 'You can only delete your own products' });
         }
 

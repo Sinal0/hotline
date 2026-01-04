@@ -44,6 +44,11 @@ const userSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+// Indexes for better query performance
+userSchema.index({ phone: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { sparse: true });
+userSchema.index({ role: 1 });
+
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password')) {
         return next();
@@ -54,6 +59,17 @@ userSchema.pre('save', async function(next) {
 });
 
 module.exports = mongoose.model('User', userSchema);
+
+
+
+
+
+
+
+
+
+
+
 
 
 

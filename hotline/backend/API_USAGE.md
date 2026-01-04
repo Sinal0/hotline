@@ -2,13 +2,13 @@
 
 ## راه‌اندازی Server
 
-1. نصب dependencies:
+**۱. نصب dependencies:**
 ```bash
 cd backend
 npm install
 ```
 
-2. راه‌اندازی server:
+**۲. راه‌اندازی server:**
 ```bash
 npm start
 ```
@@ -57,7 +57,6 @@ curl.exe http://localhost:3000/api/products
 
 ## نکته مهم
 
-**همیشه URL کامل را استفاده کنید**: `http://localhost:3000/api/...`
+**همیشه URL کامل را استفاده کنید:** `http://localhost:3000/api/...`
 
 اگر فقط `curl` یا یک URL ناقص بنویسید، مرورگر یا سیستم ممکن است آن را به عنوان جستجو تفسیر کند.
-

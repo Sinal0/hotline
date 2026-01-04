@@ -39,7 +39,23 @@ const orderSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+// Indexes for better query performance
+orderSchema.index({ userId: 1, createdAt: -1 }); // User orders sorted by date
+orderSchema.index({ status: 1 }); // Status filter
+orderSchema.index({ createdAt: -1 }); // All orders sorted by date
+
 module.exports = mongoose.model('Order', orderSchema);
+
+
+
+
+
+
+
+
+
+
+
 
 
 

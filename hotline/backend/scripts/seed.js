@@ -5,6 +5,7 @@ require('dotenv').config();
 // Import models
 const Product = require('../models/Product');
 const User = require('../models/User');
+const Admin = require('../models/Admin');
 
 // Connect to database
 const connectDB = require('../config/database');
@@ -313,23 +314,23 @@ const seedDatabase = async () => {
         // Clear existing data
         console.log('Clearing existing data...');
         await Product.deleteMany({});
-        await User.deleteMany({ role: 'buyer' }); // Only delete buyers, keep suppliers and admins
+        await User.deleteMany({ role: 'buyer' }); // Only delete buyers, keep suppliers
         
-        // Create admin user if doesn't exist
-        let admin = await User.findOne({ role: 'admin' });
+        // Create admin in separate collection if doesn't exist
+        let admin = await Admin.findOne({ username: 'admin' });
         if (!admin) {
             console.log('Creating admin user...');
-            const adminPassword = 'admin123';
-            const salt = await bcrypt.genSalt(10);
-            const hashedAdminPassword = await bcrypt.hash(adminPassword, salt);
-            admin = new User({
+            admin = new Admin({
+                username: 'admin',
+                password: 'admin123', // Will be hashed by pre-save hook
                 name: 'مدیر سیستم',
-                phone: '09100000000',
-                password: hashedAdminPassword,
-                role: 'admin',
+                email: 'admin@hotline.com',
+                isActive: true,
             });
             await admin.save();
-            console.log(`✓ Admin user created - Phone: ${admin.phone}, Password: ${adminPassword}`);
+            console.log(`✓ Admin created - Username: ${admin.username}, Password: admin123`);
+        } else {
+            console.log(`✓ Admin already exists - Username: ${admin.username}`);
         }
         
         // Create or update sample supplier
@@ -395,6 +396,17 @@ const seedDatabase = async () => {
 
 // Run seed
 seedDatabase();
+
+
+
+
+
+
+
+
+
+
+
 
 
 

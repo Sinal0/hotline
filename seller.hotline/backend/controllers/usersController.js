@@ -80,39 +80,39 @@ exports.login = async (req, res) => {
             return res.status(400).json({ error: 'Username and password are required' });
         }
 
-        // Find user by username
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+        // Find supplier by username in UserSupplier collection
+        const UserSupplier = require('../models/UserSupplier');
+        const supplier = await UserSupplier.findOne({ username });
+        if (!supplier) {
+            return res.status(401).json({ error: 'نام کاربری یا رمز عبور اشتباه است' });
         }
 
-        // Check if user is a supplier
-        if (user.role !== 'supplier') {
-            return res.status(403).json({ error: 'Access denied. Only suppliers can login here.' });
+        // Check if supplier is active
+        if (!supplier.isActive) {
+            return res.status(403).json({ error: 'حساب کاربری شما غیرفعال است' });
         }
 
         // Verify password
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, supplier.password);
         if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'نام کاربری یا رمز عبور اشتباه است' });
         }
 
+        // Update last login
+        await UserSupplier.findByIdAndUpdate(supplier._id, { lastLogin: new Date() });
+
         // Generate token
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your-secret-key', {
+        const token = jwt.sign({ userId: supplier._id }, process.env.JWT_SECRET || 'your-secret-key', {
             expiresIn: '30d',
         });
 
         res.json({
             token,
             user: {
-                _id: user._id,
-                name: user.name,
-                username: user.username,
-                email: user.email,
-                phone: user.phone,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                role: user.role,
+                _id: supplier._id,
+                name: supplier.name,
+                username: supplier.username,
+                role: 'supplier',
             },
         });
     } catch (error) {

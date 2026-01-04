@@ -229,7 +229,11 @@
                 }
             } catch (error) {
                 console.error('Error updating profile:', error);
-                alert('خطا در به‌روزرسانی پروفایل');
+                if (typeof showError === 'function') {
+                    showError('خطا در به‌روزرسانی پروفایل');
+                } else {
+                    alert('خطا در به‌روزرسانی پروفایل');
+                }
             }
         }
 

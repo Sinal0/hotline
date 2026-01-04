@@ -1,3 +1,46 @@
+// Toast/Alert Helper Functions
+function showToast(message, type = 'success') {
+    // type: 'success' (green) or 'error' (red)
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? '<i class="fas fa-check-circle me-2"></i>' : '<i class="fas fa-exclamation-circle me-2"></i>';
+    
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; min-width: 300px; max-width: 500px;';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Create alert element
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${alertClass} alert-dismissible fade show shadow`;
+    alertDiv.setAttribute('role', 'alert');
+    alertDiv.innerHTML = `
+        ${icon}${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    toastContainer.appendChild(alertDiv);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 300);
+        }
+    }, 5000);
+}
+
+function showSuccess(message) {
+    showToast(message, 'success');
+}
+
+function showError(message) {
+    showToast(message, 'error');
+}
+
 // Local Storage Management
 const Storage = {
     get: (key) => {
@@ -17,6 +60,38 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeCart();
     loadPopularProducts();
     checkAuth();
+    
+    // Update cart count after navbar loads (navbar is loaded dynamically)
+    const updateCartCountAfterNavbar = () => {
+        const cartCountEl = document.querySelector('.cart-count');
+        if (cartCountEl) {
+            updateCartCount();
+        } else {
+            // Retry after a short delay if navbar not loaded yet
+            setTimeout(updateCartCountAfterNavbar, 100);
+        }
+    };
+    
+    // Try immediately and also after delay
+    setTimeout(updateCartCountAfterNavbar, 200);
+    
+    // Watch for navbar container changes (when navbar is loaded)
+    const navbarContainer = document.getElementById('navbar-container');
+    if (navbarContainer) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    // Navbar was loaded, update cart count
+                    setTimeout(updateCartCount, 100);
+                }
+            });
+        });
+        
+        observer.observe(navbarContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
 });
 
 // Cart Management
@@ -28,21 +103,38 @@ function initializeCart() {
 }
 
 function addToCart(product) {
-    const productId = product._id || product.id;
-    const existingItem = cart.find(item => {
-        const itemId = item._id || item.id;
-        return String(itemId) === String(productId);
-    });
-    
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({ ...product, id: productId, quantity: 1 });
+    try {
+        if (!product) {
+            showError('خطا: اطلاعات محصول نامعتبر است');
+            return;
+        }
+        
+        const productId = product._id || product.id;
+        if (!productId) {
+            showError('خطا: شناسه محصول یافت نشد');
+            return;
+        }
+        
+        const existingItem = cart.find(item => {
+            const itemId = item._id || item.id;
+            return String(itemId) === String(productId);
+        });
+        
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ ...product, id: productId, quantity: 1 });
+        }
+        
+        Storage.set('cart', cart);
+        updateCartCount();
+        
+        // Show success toast
+        showSuccess('محصول به سبد خرید اضافه شد');
+    } catch (error) {
+        console.error('Error in addToCart:', error);
+        showError('خطا در افزودن محصول به سبد خرید: ' + error.message);
     }
-    
-    Storage.set('cart', cart);
-    updateCartCount();
-    showNotification('محصول به سبد خرید اضافه شد');
 }
 
 function removeFromCart(productId) {
@@ -80,9 +172,35 @@ function updateCartQuantity(productId, quantity) {
 
 function updateCartCount() {
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartCountEl = document.querySelector('.cart-count');
-    if (cartCountEl) {
-        cartCountEl.textContent = count;
+    
+    // Find all cart-count elements (navbar is loaded dynamically)
+    const allCartCounts = document.querySelectorAll('.cart-count');
+    
+    if (allCartCounts.length > 0) {
+        allCartCounts.forEach(el => {
+            el.textContent = count;
+            // Hide badge if count is 0
+            if (count === 0) {
+                el.style.display = 'none';
+            } else {
+                el.style.display = '';
+            }
+        });
+    } else {
+        // If not found, retry after a short delay (navbar might still be loading)
+        setTimeout(() => {
+            const retryCartCounts = document.querySelectorAll('.cart-count');
+            if (retryCartCounts.length > 0) {
+                retryCartCounts.forEach(el => {
+                    el.textContent = count;
+                    if (count === 0) {
+                        el.style.display = 'none';
+                    } else {
+                        el.style.display = '';
+                    }
+                });
+            }
+        }, 200);
     }
 }
 
@@ -165,7 +283,7 @@ async function loadPopularProducts() {
     if (!container) return;
 
     try {
-        const response = await fetch('http://localhost:3000/api/products/popular');
+        const response = await fetch('http://localhost:3000/api/products/popular?limit=4');
         let products = [];
         
         if (response.ok) {
@@ -173,62 +291,97 @@ async function loadPopularProducts() {
             // Take first 4 products
             products = products.slice(0, 4);
         } else {
-            // Fallback to sample products if API fails
-            products = sampleProducts.slice(0, 4);
+            // Try to get latest products as fallback
+            const fallbackResponse = await fetch('http://localhost:3000/api/products?limit=4');
+            if (fallbackResponse.ok) {
+                const data = await fallbackResponse.json();
+                products = data.products || data || [];
+                products = products.slice(0, 4);
+            }
         }
         
         if (products.length === 0) {
-            products = sampleProducts.slice(0, 4);
+            container.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-box-open text-muted mb-3" style="font-size: 4rem;"></i>
+                    <p class="text-muted">در حال حاضر محصولی برای نمایش وجود ندارد</p>
+                </div>
+            `;
+            return;
         }
         
         container.innerHTML = products.map(product => {
             const productId = product._id || product.id;
-            const productForCart = { ...product, id: productId };
+            const productForCart = {
+                _id: productId,
+                id: productId,
+                name: product.name,
+                supplier: product.supplier,
+                price: product.price,
+                category: product.category,
+                image: product.image
+            };
             return `
             <div class="col-md-6 col-lg-3">
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100 shadow-sm product-card">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center bg-light" style="min-height: 200px;">
-                        <i class="fas fa-${getProductIcon(product.category)} text-muted" style="font-size: 4rem;"></i>
+                        ${product.image ? 
+                            `<img src="${product.image}" alt="${product.name}" class="img-fluid" style="max-height: 180px; object-fit: contain;">` :
+                            `<i class="fas fa-${getProductIcon(product.category)} text-muted" style="font-size: 4rem;"></i>`
+                        }
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">${product.name}</h5>
-                        <p class="card-text text-muted small">${product.supplier}</p>
-                        <p class="card-text text-primary fw-bold fs-5">${formatPrice(product.price)} تومان</p>
+                        <p class="card-text text-muted small mb-2">
+                            <i class="fas fa-store me-1"></i>${product.supplier}
+                        </p>
+                        ${product.description ? `<p class="card-text text-muted small mb-2">${product.description.substring(0, 50)}...</p>` : ''}
+                        <p class="card-text text-primary fw-bold fs-5 mb-3">${formatPrice(product.price)} تومان</p>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-primary btn-sm flex-fill" onclick="addToCart(${JSON.stringify(productForCart).replace(/"/g, '&quot;')})">
+                            <button class="btn btn-primary btn-sm flex-fill add-to-cart-btn" 
+                                    data-product='${JSON.stringify(productForCart)}'>
                                 <i class="fas fa-cart-plus"></i> افزودن
                             </button>
-                            <a href="/product-detail.html?id=${productId}" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                            <a href="/products.html?id=${productId}" class="btn btn-outline-primary btn-sm">مشاهده</a>
                         </div>
                     </div>
                 </div>
             </div>
         `;
         }).join('');
+        
+        // Add event listeners for add to cart buttons
+        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                try {
+                    const productData = this.getAttribute('data-product');
+                    if (!productData) {
+                        console.error('Product data not found');
+                        alert('خطا: اطلاعات محصول یافت نشد');
+                        return;
+                    }
+                    const product = JSON.parse(productData);
+                    if (typeof addToCart === 'function') {
+                        addToCart(product);
+                    } else {
+                        alert('خطا: تابع افزودن به سبد خرید یافت نشد');
+                    }
+                } catch (error) {
+                    console.error('Error parsing product data:', error);
+                    alert('خطا در افزودن محصول به سبد خرید: ' + error.message);
+                }
+            });
+        });
     } catch (error) {
         console.error('Error loading popular products:', error);
-        // Fallback to sample products on error
-        const popular = sampleProducts.slice(0, 4);
-        container.innerHTML = popular.map(product => `
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center bg-light" style="min-height: 200px;">
-                        <i class="fas fa-${getProductIcon(product.category)} text-muted" style="font-size: 4rem;"></i>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">${product.name}</h5>
-                        <p class="card-text text-muted small">${product.supplier}</p>
-                        <p class="card-text text-primary fw-bold fs-5">${formatPrice(product.price)} تومان</p>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-primary btn-sm flex-fill" onclick="addToCart(${JSON.stringify(product).replace(/"/g, '&quot;')})">
-                                <i class="fas fa-cart-plus"></i> افزودن
-                            </button>
-                            <a href="/product-detail.html?id=${product.id}" class="btn btn-outline-primary btn-sm">مشاهده</a>
-                        </div>
-                    </div>
+        container.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    خطا در بارگذاری محصولات پرفروش
                 </div>
             </div>
-        `).join('');
+        `;
     }
 }
 
@@ -653,6 +806,7 @@ window.Storage = Storage;
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.updateCartQuantity = updateCartQuantity;
+window.updateCartCount = updateCartCount;
 window.getCartTotal = getCartTotal;
 window.cart = cart;
 window.sampleProducts = sampleProducts;
@@ -668,6 +822,17 @@ window.verifyOTP = verifyOTP;
 window.sendLoginOTP = sendLoginOTP;
 window.verifyLoginOTP = verifyLoginOTP;
 window.showNotification = showNotification;
+
+
+
+
+
+
+
+
+
+
+
 
 
 

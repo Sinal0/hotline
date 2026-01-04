@@ -14,6 +14,16 @@ async function loadNavbar() {
             setupSearchBar();
             updateLoginButton();
             setActiveNavItem();
+            
+            // Update cart count after navbar is loaded
+            // Use setTimeout to ensure DOM is fully updated
+            setTimeout(() => {
+                if (typeof updateCartCount === 'function') {
+                    updateCartCount();
+                } else if (typeof window.updateCartCount === 'function') {
+                    window.updateCartCount();
+                }
+            }, 50);
         }
     } catch (error) {
         console.error('Error loading navbar:', error);
@@ -157,12 +167,25 @@ function updateThemeIcon(theme) {
 // Setup search functionality
 let allProductsForSearch = [];
 let searchTimeout = null;
+let currentSearchRequest = null;
+let selectedResultIndex = -1;
 
+// Load products for initial search (fallback)
 async function loadProductsForSearch() {
     try {
         const response = await fetch('http://localhost:3000/api/products');
         if (response.ok) {
-            allProductsForSearch = await response.json();
+            const data = await response.json();
+            // Handle pagination response or direct array
+            if (Array.isArray(data)) {
+                allProductsForSearch = data;
+            } else if (data.products && Array.isArray(data.products)) {
+                allProductsForSearch = data.products;
+            } else if (data.data && Array.isArray(data.data)) {
+                allProductsForSearch = data.data;
+            } else {
+                allProductsForSearch = [];
+            }
         }
     } catch (error) {
         console.error('Error loading products for search:', error);
@@ -170,28 +193,158 @@ async function loadProductsForSearch() {
     }
 }
 
-function showSearchResults(results) {
+// Live search using API
+async function performLiveSearch(query) {
+    const dropdown = document.getElementById('searchResultsDropdown');
+    if (!dropdown) return;
+    
+    // Show loading state
+    dropdown.innerHTML = `
+        <div class="p-3 text-center">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">در حال جستجو...</span>
+            </div>
+            <div class="mt-2 text-muted small">در حال جستجو...</div>
+        </div>
+    `;
+    dropdown.style.display = 'block';
+    
+    try {
+        // Cancel previous request if exists
+        if (currentSearchRequest) {
+            currentSearchRequest.abort();
+        }
+        
+        // Create new abort controller
+        const abortController = new AbortController();
+        currentSearchRequest = abortController;
+        
+        // Search using API
+        const response = await fetch(`http://localhost:3000/api/products/search/${encodeURIComponent(query)}`, {
+            signal: abortController.signal
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            // Handle pagination response or direct array
+            let results = [];
+            if (Array.isArray(data)) {
+                results = data;
+            } else if (data.products && Array.isArray(data.products)) {
+                results = data.products;
+            } else if (data.data && Array.isArray(data.data)) {
+                results = data.data;
+            }
+            showSearchResults(results, query);
+        } else {
+            // Fallback to local search
+            const results = allProductsForSearch.filter(product =>
+                product.name.toLowerCase().includes(query.toLowerCase()) ||
+                (product.description && product.description.toLowerCase().includes(query.toLowerCase())) ||
+                product.category.toLowerCase().includes(query.toLowerCase())
+            );
+            showSearchResults(results, query);
+        }
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            return; // Request was cancelled
+        }
+        console.error('Error performing live search:', error);
+        // Fallback to local search
+        const results = allProductsForSearch.filter(product =>
+            product.name.toLowerCase().includes(query.toLowerCase()) ||
+            (product.description && product.description.toLowerCase().includes(query.toLowerCase())) ||
+            product.category.toLowerCase().includes(query.toLowerCase())
+        );
+        showSearchResults(results, query);
+    } finally {
+        currentSearchRequest = null;
+    }
+}
+
+function showSearchResults(results, query = '') {
     const dropdown = document.getElementById('searchResultsDropdown');
     if (!dropdown) return;
     
     if (results.length === 0) {
-        dropdown.style.display = 'none';
+        dropdown.innerHTML = `
+            <div class="p-3 text-center text-muted">
+                <i class="fas fa-search mb-2"></i>
+                <div>نتیجه‌ای یافت نشد</div>
+                <small>برای "${query}"</small>
+            </div>
+        `;
+        dropdown.style.display = 'block';
         return;
     }
     
-    dropdown.innerHTML = results.slice(0, 10).map(product => `
-        <a href="/products.html?id=${product._id}" class="search-result-item d-block p-3 text-decoration-none border-bottom">
-            <div class="d-flex align-items-center gap-3">
-                <div class="flex-grow-1">
-                    <div class="fw-bold">${product.name}</div>
-                    <small class="text-muted">${product.category}</small>
+    // Category names in Persian
+    const categoryNames = {
+        'electronics': 'الکترونیک',
+        'clothing': 'پوشاک',
+        'food': 'مواد غذایی',
+        'home': 'خانه و آشپزخانه',
+        'beauty': 'زیبایی و سلامت',
+        'sports': 'ورزش و سرگرمی'
+    };
+    
+    dropdown.innerHTML = results.slice(0, 10).map((product, index) => {
+        const categoryName = categoryNames[product.category] || product.category;
+        const highlightedName = highlightMatch(product.name, query);
+        return `
+            <a href="/products.html?id=${product._id}" 
+               class="search-result-item d-block p-3 text-decoration-none border-bottom ${index === selectedResultIndex ? 'bg-light' : ''}" 
+               data-index="${index}"
+               onmouseenter="selectedResultIndex = ${index}; updateSelectedResult()"
+               onclick="document.getElementById('searchResultsDropdown').style.display = 'none';">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${highlightedName}</div>
+                        <small class="text-muted">
+                            <i class="fas fa-tag me-1"></i>${categoryName}
+                            ${product.supplier ? `<span class="me-2">•</span><i class="fas fa-store me-1"></i>${product.supplier}` : ''}
+                        </small>
+                    </div>
+                    <div class="text-primary fw-bold">${product.price.toLocaleString('fa-IR')} تومان</div>
                 </div>
-                <div class="text-primary">${product.price.toLocaleString()} تومان</div>
+            </a>
+        `;
+    }).join('');
+    
+    // Add "View all results" link if more than 10 results
+    if (results.length > 10) {
+        dropdown.innerHTML += `
+            <div class="p-2 border-top bg-light text-center">
+                <a href="/products.html?search=${encodeURIComponent(query)}" 
+                   class="text-decoration-none text-primary fw-bold"
+                   onclick="document.getElementById('searchResultsDropdown').style.display = 'none';">
+                    مشاهده همه نتایج (${results.length})
+                </a>
             </div>
-        </a>
-    `).join('');
+        `;
+    }
     
     dropdown.style.display = 'block';
+    selectedResultIndex = -1;
+}
+
+// Highlight matching text
+function highlightMatch(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+}
+
+// Update selected result styling
+function updateSelectedResult() {
+    const items = document.querySelectorAll('.search-result-item');
+    items.forEach((item, index) => {
+        if (index === selectedResultIndex) {
+            item.classList.add('bg-light');
+        } else {
+            item.classList.remove('bg-light');
+        }
+    });
 }
 
 function setupSearchBar() {
@@ -200,9 +353,10 @@ function setupSearchBar() {
     
     if (!searchInput || !searchForm) return;
     
-    // Load products for search
+    // Load products for fallback search
     loadProductsForSearch();
     
+    // Live search on input
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         
@@ -213,18 +367,45 @@ function setupSearchBar() {
         if (query.length < 2) {
             const dropdown = document.getElementById('searchResultsDropdown');
             if (dropdown) dropdown.style.display = 'none';
+            selectedResultIndex = -1;
             return;
         }
         
+        // Debounce search
         searchTimeout = setTimeout(() => {
-            const results = allProductsForSearch.filter(product =>
-                product.name.toLowerCase().includes(query.toLowerCase()) ||
-                product.category.toLowerCase().includes(query.toLowerCase())
-            );
-            showSearchResults(results);
+            performLiveSearch(query);
         }, 300);
     });
     
+    // Keyboard navigation
+    searchInput.addEventListener('keydown', (e) => {
+        const dropdown = document.getElementById('searchResultsDropdown');
+        if (!dropdown || dropdown.style.display === 'none') return;
+        
+        const items = document.querySelectorAll('.search-result-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedResultIndex = Math.min(selectedResultIndex + 1, items.length - 1);
+            updateSelectedResult();
+            items[selectedResultIndex]?.scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedResultIndex = Math.max(selectedResultIndex - 1, -1);
+            updateSelectedResult();
+        } else if (e.key === 'Enter' && selectedResultIndex >= 0) {
+            e.preventDefault();
+            const selectedItem = items[selectedResultIndex];
+            if (selectedItem) {
+                window.location.href = selectedItem.href;
+            }
+        } else if (e.key === 'Escape') {
+            dropdown.style.display = 'none';
+            selectedResultIndex = -1;
+        }
+    });
+    
+    // Form submit
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const query = searchInput.value.trim();
@@ -238,8 +419,43 @@ function setupSearchBar() {
         const dropdown = document.getElementById('searchResultsDropdown');
         if (dropdown && !searchForm.contains(e.target)) {
             dropdown.style.display = 'none';
+            selectedResultIndex = -1;
         }
     });
+    
+    // Focus on input when clicking search area
+    searchInput.addEventListener('focus', () => {
+        const query = searchInput.value.trim();
+        if (query.length >= 2) {
+            const dropdown = document.getElementById('searchResultsDropdown');
+            if (!dropdown || dropdown.style.display === 'none') {
+                performLiveSearch(query);
+            }
+        }
+    });
+    
+    // Clear search on blur (with delay to allow clicking results)
+    let blurTimeout = null;
+    searchInput.addEventListener('blur', () => {
+        blurTimeout = setTimeout(() => {
+            const dropdown = document.getElementById('searchResultsDropdown');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+                selectedResultIndex = -1;
+            }
+        }, 200);
+    });
+    
+    // Cancel blur timeout if clicking on dropdown
+    const dropdown = document.getElementById('searchResultsDropdown');
+    if (dropdown) {
+        dropdown.addEventListener('mousedown', (e) => {
+            if (blurTimeout) {
+                clearTimeout(blurTimeout);
+                blurTimeout = null;
+            }
+        });
+    }
 }
 
 // Update login button based on authentication status

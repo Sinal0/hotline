@@ -45,8 +45,8 @@
             
             <form id="loginForm">
                 <div class="mb-3">
-                    <label for="phone" class="form-label">شماره تماس</label>
-                    <input type="text" class="form-control" id="phone" placeholder="09123456789" required>
+                    <label for="username" class="form-label">نام کاربری</label>
+                    <input type="text" class="form-control" id="username" placeholder="نام کاربری" required>
                 </div>
                 
                 <div class="mb-3">
@@ -54,7 +54,10 @@
                     <input type="password" class="form-control" id="password" placeholder="رمز عبور" required>
                 </div>
                 
-                <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+                <div id="errorMessage" class="alert alert-danger d-none" role="alert" style="color: #dc3545; background-color: #f8d7da; border-color: #f5c6cb;">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span id="errorText"></span>
+                </div>
                 
                 <button type="submit" class="btn btn-primary w-100 mb-3">
                     <i class="fas fa-sign-in-alt me-2"></i>ورود
@@ -70,19 +73,19 @@
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const phone = document.getElementById('phone').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('errorMessage');
             
             errorMessage.classList.add('d-none');
             
             try {
-                const response = await fetch(`${API_BASE_URL}/users/login`, {
+                const response = await fetch(`${API_BASE_URL}/admin/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ phone, password }),
+                    body: JSON.stringify({ username, password }),
                 });
                 
                 const data = await response.json();
@@ -98,8 +101,14 @@
                 // Redirect to admin panel
                 window.location.href = '/html/admin-panel.html';
             } catch (error) {
-                errorMessage.textContent = error.message;
+                const errorText = document.getElementById('errorText');
+                if (errorText) {
+                    errorText.textContent = error.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.';
+                } else {
+                    errorMessage.textContent = error.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.';
+                }
                 errorMessage.classList.remove('d-none');
+                errorMessage.style.display = 'block';
             }
         });
 
