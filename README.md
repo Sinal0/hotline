@@ -1,4 +1,4 @@
-# Hotline & Seller Hotline
+# Hotline 
 
 این ریپو شامل دو بخش اصلی است:
 
