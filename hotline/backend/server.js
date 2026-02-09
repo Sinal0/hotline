@@ -123,7 +123,8 @@ const htmlFiles = [
     'products.html',
     'suppliers.html',
     'about.html',
-    'forget-password.html'
+    'forget-password.html',
+    'register.html'
 ];
 
 htmlFiles.forEach(file => {

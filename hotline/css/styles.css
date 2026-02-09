@@ -22,6 +22,40 @@ body {
     background-color: var(--bg-light);
 }
 
+/* Cart quantity input - remove default browser spinners */
+.cart-quantity-input[type=number]::-webkit-inner-spin-button,
+.cart-quantity-input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.cart-quantity-input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* اندازه و ارتفاع کمتر برای عدد وسط سبد خرید */
+.cart-quantity-input {
+    font-size: 0.8rem !important;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+/* Cart quantity display span - reduce width by 70% */
+.cart-quantity-display {
+    width: 15% !important;
+    min-width: 40px;
+    display: inline-block;
+    flex: 0 0 auto;
+}
+
+/* Reduce parent input-group width in cart page */
+#cartItems .input-group {
+    width: 35% !important;  /* بخش تعداد باریک‌تر شود */
+    max-width: 140px;
+    margin-right: auto;  /* در محیط RTL: هل دادن بلوک به سمت چپ کارت */
+    margin-left: 0;
+}
+
 /* Logo Styles */
 .logo-img {
     width: 65px;
@@ -333,9 +367,31 @@ html.force-dark .modal-footer {
 
 html[data-theme="dark"] .alert,
 html.force-dark .alert {
-    background-color: var(--bg-white);
-    border-color: var(--border-color);
-    color: var(--text-dark);
+    background-color: #111827 !important; /* پس‌زمینه تیره اما نه کاملاً مشکی */
+    border-color: #374151 !important;
+    color: #e5e7eb !important; /* متن روشن برای خوانایی بهتر */
+}
+
+/* Alerts coloring in dark mode */
+html[data-theme="dark"] .alert-danger,
+html.force-dark .alert-danger {
+    background-color: rgba(239, 68, 68, 0.16) !important; /* قرمز ملایم روی پس‌زمینه تیره */
+    border-color: rgba(248, 113, 113, 0.9) !important;
+    color: #fecaca !important;
+}
+
+html[data-theme="dark"] .alert-success,
+html.force-dark .alert-success {
+    background-color: rgba(16, 185, 129, 0.16) !important; /* سبز ملایم */
+    border-color: rgba(52, 211, 153, 0.9) !important;
+    color: #bbf7d0 !important;
+}
+
+html[data-theme="dark"] .alert-info,
+html.force-dark .alert-info {
+    background-color: rgba(59, 130, 246, 0.16) !important; /* آبی ملایم */
+    border-color: rgba(96, 165, 250, 0.9) !important;
+    color: #bfdbfe !important;
 }
 
 html[data-theme="dark"] .badge,

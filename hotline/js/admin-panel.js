@@ -680,3 +680,4 @@ if (document.readyState === 'loading') {
 // Load products on page load
 loadAllProducts();
 
+

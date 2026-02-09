@@ -101,7 +101,7 @@
             }
 
             container.innerHTML = cart.map(item => `
-                <div class="card mb-3 shadow-sm">
+                <div class="card mb-3 shadow-sm" data-product-id="${item.id}">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-md-2 text-center">
@@ -116,14 +116,30 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="input-group">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                                    <input type="number" class="form-control text-center" value="${item.quantity}" 
-                                           onchange="updateCartQuantity(${item.id}, parseInt(this.value))" min="1">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                                    <button 
+                                        class="btn btn-outline-secondary cart-decrease" 
+                                        type="button" 
+                                        data-product-id="${item.id}">
+                                        -
+                                    </button>
+                                    <span 
+                                        class="form-control text-center cart-quantity-display" 
+                                        data-product-id="${item.id}">
+                                        ${item.quantity}
+                                    </span>
+                                    <button 
+                                        class="btn btn-outline-secondary cart-increase" 
+                                        type="button" 
+                                        data-product-id="${item.id}">
+                                        +
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-md-2 text-center">
-                                <button class="btn btn-danger" onclick="removeFromCart(${item.id})">
+                                <button 
+                                    class="btn btn-danger cart-remove" 
+                                    type="button" 
+                                    data-product-id="${item.id}">
                                     <i class="fas fa-trash"></i> حذف
                                 </button>
                             </div>
@@ -159,6 +175,35 @@
                 </div>
             `;
         }
+
+        // Event delegation for cart actions (CSP-safe, بدون inline onclick)
+        document.getElementById('cartItems').addEventListener('click', (event) => {
+            const decreaseBtn = event.target.closest('.cart-decrease');
+            const increaseBtn = event.target.closest('.cart-increase');
+            const removeBtn = event.target.closest('.cart-remove');
+
+            if (decreaseBtn) {
+                const productId = decreaseBtn.getAttribute('data-product-id');
+                const item = cart.find(it => String(it._id || it.id) === String(productId));
+                if (!item) return;
+                updateCartQuantity(productId, item.quantity - 1);
+                return;
+            }
+
+            if (increaseBtn) {
+                const productId = increaseBtn.getAttribute('data-product-id');
+                const item = cart.find(it => String(it._id || it.id) === String(productId));
+                if (!item) return;
+                updateCartQuantity(productId, item.quantity + 1);
+                return;
+            }
+
+            if (removeBtn) {
+                const productId = removeBtn.getAttribute('data-product-id');
+                removeFromCart(productId);
+                return;
+            }
+        });
 
         function proceedToCheckout() {
             const user = Storage.get('currentUser');

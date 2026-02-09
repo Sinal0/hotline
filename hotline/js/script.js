@@ -24,13 +24,13 @@ function showToast(message, type = 'success') {
     
     toastContainer.appendChild(alertDiv);
     
-    // Auto remove after 5 seconds
+    // Auto remove after 3 seconds
     setTimeout(() => {
         if (alertDiv.parentNode) {
             alertDiv.classList.remove('show');
             setTimeout(() => alertDiv.remove(), 300);
         }
-    }, 5000);
+    }, 3000);
 }
 
 function showSuccess(message) {
@@ -798,7 +798,7 @@ function showNotification(message, type = 'success') {
 
     setTimeout(() => {
         notification.remove();
-    }, type === 'error' ? 5000 : 3000);
+    }, 3000);
 }
 
 // Export functions for use in other pages
